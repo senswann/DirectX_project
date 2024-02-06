@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="E:\projet\DirectX_project\App\Tools\Source\Private\Tools\Tools.cpp">
+      <Filter>Source\Private\Tools</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="E:\projet\DirectX_project\App\Tools\Source\Public\Tools\Tools.h">
+      <Filter>Source\Public\Tools</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="E:\projet\DirectX_project\App\Tools\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{F9D68CB2-5E10-3EDE-B991-D1F4079B1E33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Private">
+      <UniqueIdentifier>{557512FE-9918-39A1-BB2F-95A8D4299ABF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Private\Tools">
+      <UniqueIdentifier>{708E80CA-BDB5-36A8-8D03-90E6F58A018E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Public">
+      <UniqueIdentifier>{7026D1B2-A680-3C84-8BA5-FD45691E9B13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Public\Tools">
+      <UniqueIdentifier>{1200B7CF-30A4-3D92-B587-1C5CFA8A5D15}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
