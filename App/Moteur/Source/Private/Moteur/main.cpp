@@ -1,16 +1,34 @@
-#include <cmath>
+#include <Windows.h>
 #include <iostream>
 #include <string>
 
-#include "Tools/ImageManager.h"
+#include "Tools/InputManager.h"
 
 int main(int argc, char* argv[])
 {
-    std::wcout << L"Entrez le chemin de l'image : ";
-    std::wstring cheminImage;
-    std::wcin >> cheminImage;
+    bool isRunning = true;
+    int count = 0;
 
-    tools::AfficherImage(cheminImage.c_str());
+    InputManager InputManager;
+    InputManager.setRunning(&isRunning);
 
+    //boucle de rendu
+    do {
+        // Afficher un message
+        count++;
+        std::wcout << "ratio " << count << std::endl;
+
+        Sleep(InputManager.getTimer() * 1000);
+
+        if (count >= 3)
+            InputManager.Quit();
+
+        //input
+        //free time
+        //rendering
+        //show frame
+    } while (isRunning);
+
+    std::wcout << "End Running " << std::endl;
     return 0;
 }
