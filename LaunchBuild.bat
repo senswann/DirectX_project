@@ -6,9 +6,10 @@ set "nom_dossier=Build"
 rem Vérifier si le dossier existe déjà
 if exist "%nom_dossier%" (
     echo Le dossier "%nom_dossier%" existe déjà.
-) else (
-    mkdir "%nom_dossier%"
-)
+    rem Supprimer le dossier
+    rmdir /s /q "%nom_dossier%"
+) 
+mkdir "%nom_dossier%"
 
 rem Entrer dans le dossier créé
 cd "%nom_dossier%"

@@ -9,6 +9,7 @@ set(MOTEUR_SOURCES
 	${MOTEUR_PUBLIC}pch.h
 	${MOTEUR_PUBLIC}/Tools/Debug/AYCDebugLayer.h		${MOTEUR_PRIVATE}/Tools/Debug/AYCDebugLayer.cpp
 	${MOTEUR_PUBLIC}/Tools/Debug/AYCLog.h		${MOTEUR_PRIVATE}/Tools/Debug/AYCLog.cpp
+	${MOTEUR_PUBLIC}/Handler/WindowHandler.h		${MOTEUR_PRIVATE}/Handler/WindowHandler.cpp
 )
 
 ### 	FONCTION	 ###

@@ -2,23 +2,30 @@
 #include <iostream>
 #include <string>
 
-#include "Tools/InputManager.h"
 #include "Gen_App/Config/AppConfig.h"
+
 #include "Moteur/Tools/Debug/AYCLog.h"
+#include "Moteur/Tools/Debug/AYCDebugLayer.h"
+#include "Moteur/Handler/WindowHandler.h"
 
 using namespace AYCDX;
 int main(int argc, char* argv[])
 {
-    AYCLog::Log(LOG_DISPLAY, TEXT("Let's go"));
-    std::cin.get();
-
     //INIT
+    AYCLog::Log(LOG_DISPLAY, TEXT("Let's go"));
+
+    if (!AYCDebugLayer::Get().Init()) {
+        AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize debug layer !"));
+        return 0;
+    }
+
+    WindowHandler* window = &WindowHandler::Get();
+    if (!window || !window->Init()) {
+        AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize a window !"));
+        return 0;
+    }
+    
     bool isRunning = true;
-
-    InputManager InputManager;
-    InputManager.setRunning(&isRunning);
-
-
 
     //boucle de rendu
     do {
@@ -30,6 +37,7 @@ int main(int argc, char* argv[])
         //SwapTheChain()
     } while (isRunning);
 
+    std::cin.get();
     std::wcout << "End Running " << std::endl;
     return 0;
 }
