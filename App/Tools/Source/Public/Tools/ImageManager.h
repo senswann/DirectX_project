@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <wincodec.h>
 #include <wlclient.h>

@@ -2,6 +2,10 @@
 
 Pour que le projet soit fonctionnel veuillez suivre les instructions suivante :
 
+- Lancer l'éxécutable LaunchBuild.bat
+
+## OU
+
 - il faut rajouter un dossier dans la racine pour y mettre la build du projet, je conseille le nom de Build.
 
 - Puis ouvrir un terminale a l'intérieure du dossier créer en faisant les commandes suivante :

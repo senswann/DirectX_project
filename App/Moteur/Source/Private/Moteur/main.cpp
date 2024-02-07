@@ -3,30 +3,31 @@
 #include <string>
 
 #include "Tools/InputManager.h"
+#include "Gen_App/Config/AppConfig.h"
+#include "Moteur/Tools/Debug/AYCLog.h"
 
+using namespace AYCDX;
 int main(int argc, char* argv[])
 {
+    AYCLog::Log(LOG_DISPLAY, TEXT("Let's go"));
+    std::cin.get();
+
+    //INIT
     bool isRunning = true;
-    int count = 0;
 
     InputManager InputManager;
     InputManager.setRunning(&isRunning);
 
+
+
     //boucle de rendu
     do {
-        // Afficher un message
-        count++;
-        std::wcout << "ratio " << count << std::endl;
-
-        Sleep(InputManager.getTimer() * 1000);
-
-        if (count >= 3)
-            InputManager.Quit();
-
-        //input
-        //free time
-        //rendering
-        //show frame
+        //Process Window Event
+        //Preocess Resize
+        double deltaTime = 0; //GetDeltaTime()
+        //Update(deltaTime)
+        //RenderFrame()
+        //SwapTheChain()
     } while (isRunning);
 
     std::wcout << "End Running " << std::endl;
