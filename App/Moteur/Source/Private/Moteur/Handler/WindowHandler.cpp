@@ -67,9 +67,33 @@ bool AYCDX::WindowHandler::Init() {
 }
 
 void AYCDX::WindowHandler::Shutdown() {
+	if (m_window) {
+		DestroyWindow(m_window);
+	}
+	if (m_wndClass) {
+		UnregisterClassW((LPCWSTR)m_wndClass, GetModuleHandleW(nullptr));
+	}
+}
 
+void AYCDX::WindowHandler::Update()
+{
+	MSG msg;
+	//true si le msg est en attente
+	while (PeekMessage(&msg, m_window, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&msg);
+		//envoyer a OnWindowMessage
+		DispatchMessageW(&msg);
+	}
 }
 
 LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
+	switch (msg)
+	{
+	case WM_CLOSE:
+		Get().m_shouldClose = true;
+		return 0;
+	default:
+		break;
+	}
 	return DefWindowProcW(wnd, msg, wparam, lparam);
 }

@@ -30,14 +30,17 @@ int main(int argc, char* argv[])
     //boucle de rendu
     do {
         //Process Window Event
-        //Preocess Resize
+        window->Update();
+        //Process Resize
         double deltaTime = 0; //GetDeltaTime()
         //Update(deltaTime)
         //RenderFrame()
         //SwapTheChain()
-    } while (isRunning);
+    } while (!WindowHandler::Get().GetClose());
 
-    std::cin.get();
-    std::wcout << "End Running " << std::endl;
+    WindowHandler::Get().Shutdown();
+
+    AYCDebugLayer::Get().Shutdown();
+    //std::cin.get();
     return 0;
 }

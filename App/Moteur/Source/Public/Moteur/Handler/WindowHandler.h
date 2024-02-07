@@ -28,14 +28,21 @@ namespace AYCDX {
 		WindowHandler(const WindowHandler& InOther) = delete;
 		WindowHandler& operator=(const WindowHandler& other) = delete;
 
+		inline static WindowHandler& Get() { return Instance; };
+		inline bool GetClose() { return m_shouldClose; };
+
 		bool Init(/*Prametre*/);
 		void Shutdown();
-		inline static WindowHandler& Get() { return Instance; };
+
+		void Update();
 
 	private:
 
 		ATOM m_wndClass = 0;
 		HWND m_window = nullptr;
+
+		//User action
+		bool m_shouldClose = false;
 
 		static LRESULT OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
