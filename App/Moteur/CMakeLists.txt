@@ -9,8 +9,12 @@ set(MOTEUR_SOURCES
 	${MOTEUR_PUBLIC}pch.h
 	${MOTEUR_PUBLIC}/Tools/Debug/AYCDebugLayer.h		${MOTEUR_PRIVATE}/Tools/Debug/AYCDebugLayer.cpp
 	${MOTEUR_PUBLIC}/Tools/Debug/AYCLog.h		${MOTEUR_PRIVATE}/Tools/Debug/AYCLog.cpp
+	${MOTEUR_PUBLIC}/Tools/Debug/AYC_Context.h		${MOTEUR_PRIVATE}/Tools/Debug/AYC_Context.cpp
 	${MOTEUR_PUBLIC}/Handler/WindowHandler.h		${MOTEUR_PRIVATE}/Handler/WindowHandler.cpp
 )
+
+# creer les fichier qui n'existe pas dans la liste MOTEUR_SOURCES
+create_non_existing("${MOTEUR_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}" ${MOTEUR_NAME})
 
 ### 	FONCTION	 ###
 add_executable(${MOTEUR_NAME} ${MOTEUR_SOURCES}) # pour ajouter l'executable
