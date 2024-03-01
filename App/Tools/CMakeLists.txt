@@ -6,7 +6,7 @@ set(TOOLS_PUBLIC "Source/Public/${TOOLS_NAME}/")
 
 set(TOOLS_SOURCES
 	${TOOLS_PUBLIC}Tools.h		${TOOLS_PRIVATE}Tools.cpp
-	${TOOLS_PUBLIC}ImageManager.h
+	${TOOLS_PUBLIC}RKeyCodes.h
 )
 
 ### 	FONCTION	 ###

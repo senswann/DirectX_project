@@ -35,6 +35,9 @@ namespace AYCDX {
 		void Shutdown();
 
 		void Update();
+		inline bool IsFullscreen() { return m_isFullscreen; };
+		inline void ToggleFulscreen() { SetFullscreen(!m_isFullscreen); };
+		void SetFullscreen(bool enabled);
 
 	private:
 
@@ -43,6 +46,7 @@ namespace AYCDX {
 
 		//User action
 		bool m_shouldClose = false;
+		bool m_isFullscreen = false;
 
 		static LRESULT OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
 

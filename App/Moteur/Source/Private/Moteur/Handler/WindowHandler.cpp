@@ -1,4 +1,6 @@
 #include "Moteur/Handler/WindowHandler.h"
+#include "Moteur/Tools/Debug/AYCLog.h"
+#include "Tools/RKeyCodes.h"
 
 
 using namespace AYCDX;
@@ -86,12 +88,54 @@ void AYCDX::WindowHandler::Update()
 	}
 }
 
+void AYCDX::WindowHandler::SetFullscreen(bool enabled)
+{
+	//TODO Implement Style
+	SetWindowLongW(m_window, GWL_STYLE, enabled ? DXwd::WINDOW_FULLSCREEN_STYLE : DXwd::WINDOW_DEFAULT_STYLE);
+	SetWindowLongW(m_window, GWL_EXSTYLE, enabled ? DXwd::WINDOW_FULLSCREEN_EXSTYLE : DXwd::WINDOW_DEFAULT_EXSTYLE);
+	
+	if (enabled) {
+		HMONITOR monitor = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
+
+		MONITORINFO monitorInfo{};
+		monitorInfo.cbSize = sizeof(monitorInfo);
+		if (GetMonitorInfoW(monitor, &monitorInfo)) {
+			SetWindowPos(
+				m_window,
+				nullptr,
+				monitorInfo.rcMonitor.left,
+				monitorInfo.rcMonitor.top,
+				monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left,
+				monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top,
+				SWP_NOZORDER
+			);
+		}
+
+	}
+	else {
+		ShowWindow(m_window, SW_MAXIMIZE);
+	}
+	m_isFullscreen = enabled;
+}
+
 LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
 	switch (msg)
 	{
 	case WM_CLOSE:
 		Get().m_shouldClose = true;
 		return 0;
+	case WM_KEYDOWN:
+	{
+		switch (wparam)
+		{
+		case YNOV_KEY_F11:
+			Get().ToggleFulscreen();
+			break;
+		default:
+			break;
+		}
+		break;
+	}
 	default:
 		break;
 	}
