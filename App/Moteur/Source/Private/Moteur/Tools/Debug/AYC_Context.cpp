@@ -7,6 +7,11 @@ static constexpr D3D12_COMMAND_LIST_TYPE DRAW_LIST_TYPE = D3D12_COMMAND_LIST_TYP
 
 bool AYCDX::AYC_Context::Init()
 {
+	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&m_factory)))) {
+		return false;
+	}
+
+
 	if (FAILED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0,IID_PPV_ARGS(&m_device)))) {
 		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot create a device API level 10 !"));
 		return false;
@@ -55,6 +60,7 @@ void AYCDX::AYC_Context::Shutdown()
 	m_cmdAllocator.Reset();
 	m_cmdList.Reset();
 	m_fence.Reset();
+	m_factory.Reset();
 }
 
 ID3D12GraphicsCommandList7* AYCDX::AYC_Context::InitCommandList()

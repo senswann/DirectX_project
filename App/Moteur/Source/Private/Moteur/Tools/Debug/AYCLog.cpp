@@ -1,4 +1,5 @@
 #include "Moteur/Tools/Debug/AYCLog.h"
+#include <system_error>
 #include<iostream>
 
 static const std::string ESERVITY_DISPLAY = TEXT("Display");
@@ -11,6 +12,14 @@ using std::cout, std::endl;
 
 void AYCDX::AYCLog::Log(ESeverity EInSeverity,const std::string_view InDisplayError) {
 	cout << "[ " << ToString(EInSeverity) << " ] : " << InDisplayError << endl;
+}
+void AYCDX::AYCLog::Log(ESeverity EInSeverity, const std::string_view InDisplayError, HRESULT result) {
+	std::string hError = std::system_category().message(result);
+	cout << "[ " << ToString(EInSeverity) << " ] : " << InDisplayError << "'with error code '" << hError << endl;
+}
+void AYCDX::AYCLog::Log(ESeverity EInSeverity, HRESULT result) {
+	std::string hError = std::system_category().message(result);
+	cout << "[ " << ToString(EInSeverity) << " ] : " << "'with error code '" << hError << endl;
 }
 
 const std::string& AYCDX::ToString(AYCLog::ESeverity EInSeverity) {

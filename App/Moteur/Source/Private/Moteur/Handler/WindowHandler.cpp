@@ -1,5 +1,6 @@
 #include "Moteur/Handler/WindowHandler.h"
 #include "Moteur/Tools/Debug/AYCLog.h"
+#include "Moteur/Tools/Debug/AYC_Context.h"
 #include "Tools/RKeyCodes.h"
 
 
@@ -8,8 +9,8 @@ namespace DXwd = DXWindowDefaults;
 
 WindowHandler WindowHandler::Instance = WindowHandler();
 
-const UINT DXwd::WIDTH = 1920;
-const UINT DXwd::HEIGHT = 1080;
+const UINT DXwd::START_WIDTH = 1920;
+const UINT DXwd::START_HEIGHT = 1080;
 
 LPCWSTR DXwd::CLASS_NAME = L"CLS_DirectX_Window";
 LPCWSTR DXwd::INSTANCE_NAME = L"INS_DirectX_Window";
@@ -20,7 +21,14 @@ const DWORD DXwd::WINDOW_DEFAULT_EXSTYLE = WS_EX_OVERLAPPEDWINDOW | WS_EX_APPWIN
 const DWORD DXwd::WINDOW_FULLSCREEN_STYLE = WS_POPUP | WS_VISIBLE;
 const DWORD DXwd::WINDOW_FULLSCREEN_EXSTYLE = WS_EX_APPWINDOW;
 
+const UINT DXwd::DXGI_SWAP_CHAIN_FLAGS	= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+const DXGI_FORMAT DXwd::SWAP_CHAIN_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+extern const float SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4];
+
 bool AYCDX::WindowHandler::Init() {
+	HRESULT result;
+
 	WNDCLASSEXW wcex
 	{
 		.cbSize = sizeof(wcex),
@@ -43,6 +51,32 @@ bool AYCDX::WindowHandler::Init() {
 		return false;
 	}
 
+	const auto& factory = AYC_Context::Get().GetFactory();
+
+	DXGI_SWAP_CHAIN_DESC1 scd1 = {
+		.Width = DXwd::START_WIDTH,
+		.Height = DXwd::START_HEIGHT,
+		.Format = DXwd::SWAP_CHAIN_BUFFER_FORMAT,
+		.Stereo = false,
+		.SampleDesc = {
+			.Count = 1,
+			.Quality = 0
+		},
+		.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT,
+		.BufferCount = DXwd::SWAP_CHAIN_BUFFER_COUNT,
+		.Scaling = DXGI_SCALING_STRETCH,
+		.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
+		.AlphaMode = DXGI_ALPHA_MODE_IGNORE,
+		.Flags = DXwd::DXGI_SWAP_CHAIN_FLAGS,
+	};
+
+	DXGI_SWAP_CHAIN_FULLSCREEN_DESC scdf = {
+		.RefreshRate = DXGI_RATIONAL(),
+		.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+		.Scaling = DXGI_MODE_SCALING_UNSPECIFIED,
+		.Windowed = true,
+	};
+
 	//get monitor current
 	POINT pos{ 0,0 };
 	GetCursorPos(&pos);
@@ -59,16 +93,39 @@ bool AYCDX::WindowHandler::Init() {
 		DXwd::WINDOW_DEFAULT_STYLE,
 		monitorInfo.rcWork.left + 100,
 		monitorInfo.rcWork.top + 100,
-		DXwd::WIDTH, DXwd::HEIGHT, nullptr, nullptr, wcex.hInstance, nullptr
+		DXwd::START_WIDTH, DXwd::START_HEIGHT, nullptr, nullptr, wcex.hInstance, nullptr
 	);
 	if (m_window == nullptr)
 	{
 		return false;
 	}
+
+	Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
+
+	result = factory->CreateSwapChainForHwnd(
+		AYC_Context::Get().GetCommandQueue().Get(),
+		m_window,
+		&scd1,
+		&scdf,
+		nullptr,
+		&sc1
+	);
+	if (FAILED(result)) {
+		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize sc1 !"), result);
+		return false;
+	}
+	result = sc1.CopyTo(IID_PPV_ARGS(&m_swapChain));
+
+	if (FAILED(result)) {
+		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize result !"), result);
+		return false;
+	}
+
 	return true;
 }
 
 void AYCDX::WindowHandler::Shutdown() {
+	m_swapChain.Reset();
 	if (m_window) {
 		DestroyWindow(m_window);
 	}

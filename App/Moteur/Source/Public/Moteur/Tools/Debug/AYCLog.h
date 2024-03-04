@@ -14,7 +14,9 @@ namespace AYCDX {
 			Exception = 3
 		};
 	public:
-		static void Log(ESeverity EInSeverity,const std::string_view InDisplayError);
+		static void Log(ESeverity EInSeverity, const std::string_view InDisplayError);
+		static void Log(ESeverity EInSeverity, const std::string_view InDisplayError, HRESULT result);
+		static void Log(ESeverity EInSeverity, HRESULT result);
 	};
 
 	constexpr AYCLog::ESeverity LOG_DISPLAY = AYCLog::ESeverity::Display;
