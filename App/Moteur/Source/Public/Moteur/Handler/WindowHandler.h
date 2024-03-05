@@ -37,15 +37,22 @@ namespace AYCDX {
 
 		inline static WindowHandler& Get() { return Instance; };
 		inline bool GetClose() { return m_shouldClose; };
+		inline bool GetResize() { return m_shouldResize; };
 
 		bool Init(/*Prametre*/);
 		void Shutdown();
 
 		void Update();
+
 		inline bool IsFullscreen() { return m_isFullscreen; };
 		inline void ToggleFulscreen() { SetFullscreen(!m_isFullscreen); };
 		void SetFullscreen(bool enabled);
 
+		void Resize();
+		void Present();
+
+		void BeginFrame(ID3D12GraphicsCommandList7* InCmdList);
+		void EndFrame(ID3D12GraphicsCommandList7* InCmdList);
 	private:
 
 		ATOM m_wndClass = 0;
@@ -53,13 +60,24 @@ namespace AYCDX {
 
 		//User action
 		bool m_shouldClose = false;
+
 		bool m_isFullscreen = false;
 
+		bool m_shouldResize = false;
+
+		UINT m_width = DXWindowDefaults::START_WIDTH;
+		UINT m_height = DXWindowDefaults::START_HEIGHT;
+
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_swapChain;
+		Microsoft::WRL::ComPtr<ID3D12Resource2> m_buffers[DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT];
+		UINT m_currentBufferIndex = 0;
 
 		static LRESULT OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 		static WindowHandler Instance;
 		WindowHandler() = default;
+
+		bool GetBuffers();
+		void ReleaseBuffers();
 	};
 }

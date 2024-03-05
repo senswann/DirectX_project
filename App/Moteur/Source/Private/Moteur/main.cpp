@@ -33,19 +33,31 @@ int main(int argc, char* argv[])
     bool isRunning = true;
 
     //boucle de rendu
-    do {
+    while (!WindowHandler::Get().GetClose()) {
         //Process Window Event
         window->Update();
 
+        if (window->GetResize()) {
+            //resize buffers
+            AYC_Context::Get().Flush(DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT);
+            window->Resize();
+        }
+
         ID3D12GraphicsCommandList7* drawlist = AYC_Context::Get().InitCommandList();
+
+        window->BeginFrame(drawlist);
+        double deltaTime = 0;
+
+        //Fill CommandList
+
+        window->EndFrame(drawlist);
+
         AYC_Context::Get().ExecuteCommandList();
 
-        //Process Resize
-        double deltaTime = 0; //GetDeltaTime()
-        //Update(deltaTime)
-        //RenderFrame()
-        //SwapTheChain()
-    } while (!WindowHandler::Get().GetClose());
+        window->Present();
+    }
+
+    AYC_Context::Get().Flush(DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT);
 
     WindowHandler::Get().Shutdown();
 

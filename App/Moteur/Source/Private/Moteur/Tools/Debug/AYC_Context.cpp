@@ -16,6 +16,9 @@ bool AYCDX::AYC_Context::Init()
 		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot create a device API level 10 !"));
 		return false;
 	}
+
+	//m_device->GetDescriptorHandleIncrementSize();
+
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {
 		.Type = DRAW_LIST_TYPE,
 		.Priority= D3D12_COMMAND_QUEUE_PRIORITY_HIGH,

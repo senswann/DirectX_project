@@ -13,7 +13,7 @@ const UINT DXwd::START_WIDTH = 1920;
 const UINT DXwd::START_HEIGHT = 1080;
 
 LPCWSTR DXwd::CLASS_NAME = L"CLS_DirectX_Window";
-LPCWSTR DXwd::INSTANCE_NAME = L"INS_DirectX_Window";
+LPCWSTR DXwd::INSTANCE_NAME = L"DirectX12_Project";
 
 const DWORD DXwd::WINDOW_DEFAULT_STYLE = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 const DWORD DXwd::WINDOW_DEFAULT_EXSTYLE = WS_EX_OVERLAPPEDWINDOW | WS_EX_APPWINDOW;
@@ -25,6 +25,22 @@ const UINT DXwd::DXGI_SWAP_CHAIN_FLAGS	= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH 
 const DXGI_FORMAT DXwd::SWAP_CHAIN_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 extern const float SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4];
+
+
+bool AYCDX::WindowHandler::GetBuffers() {
+	for (size_t i = 0; i < DXwd::SWAP_CHAIN_BUFFER_COUNT; ++i) {
+		if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_buffers[i])))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void AYCDX::WindowHandler::ReleaseBuffers() {
+	for (INT32 i = DXwd::SWAP_CHAIN_BUFFER_COUNT - 1; i > -1; --i) {
+		m_buffers[i].Reset();
+	}
+}
 
 bool AYCDX::WindowHandler::Init() {
 	HRESULT result;
@@ -110,6 +126,7 @@ bool AYCDX::WindowHandler::Init() {
 		nullptr,
 		&sc1
 	);
+
 	if (FAILED(result)) {
 		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize sc1 !"), result);
 		return false;
@@ -121,10 +138,15 @@ bool AYCDX::WindowHandler::Init() {
 		return false;
 	}
 
+	if (!GetBuffers()) {
+		return false;
+	}
+
 	return true;
 }
 
 void AYCDX::WindowHandler::Shutdown() {
+	ReleaseBuffers();
 	m_swapChain.Reset();
 	if (m_window) {
 		DestroyWindow(m_window);
@@ -175,6 +197,27 @@ void AYCDX::WindowHandler::SetFullscreen(bool enabled)
 	m_isFullscreen = enabled;
 }
 
+void AYCDX::WindowHandler::Resize() {
+	ReleaseBuffers();
+	RECT rect;
+	if (GetClientRect(m_window, &rect)) {
+		m_width = rect.right - rect.left;
+		m_height = rect.bottom - rect.top;
+
+		HRESULT result;
+		result = m_swapChain->ResizeBuffers(DXwd::SWAP_CHAIN_BUFFER_COUNT, m_width, m_height, DXGI_FORMAT_UNKNOWN, DXwd::DXGI_SWAP_CHAIN_FLAGS);
+		if (FAILED(result)) {
+			AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot resize Buffers !"), result);
+		}
+		m_shouldResize = false;
+	}
+	GetBuffers();
+}
+
+void AYCDX::WindowHandler::Present() {
+	m_swapChain->Present(1, 0);
+}
+
 LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
 	switch (msg)
 	{
@@ -193,8 +236,49 @@ LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam,
 		}
 		break;
 	}
+	case WM_SIZE: {
+		if (lparam && (HIWORD(lparam) != Get().m_height | LOWORD(lparam) != Get().m_width)) {
+			Get().m_shouldResize = true;
+		}
+		break;
+	}
 	default:
 		break;
 	}
 	return DefWindowProcW(wnd, msg, wparam, lparam);
+}
+
+void AYCDX::WindowHandler::BeginFrame(ID3D12GraphicsCommandList7* InCmdList){
+	m_currentBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+	D3D12_RESOURCE_BARRIER barr = {
+		.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+		.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+		.Transition
+		{
+			.pResource = m_buffers[m_currentBufferIndex].Get(),
+			.Subresource = 0,
+			.StateBefore = D3D12_RESOURCE_STATE_PRESENT,
+			.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET,
+		}
+	};
+	InCmdList->ResourceBarrier(1, &barr);
+}
+
+void AYCDX::WindowHandler::EndFrame(ID3D12GraphicsCommandList7* InCmdList)
+{
+	m_currentBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+	D3D12_RESOURCE_BARRIER barr = {
+		.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+		.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+		.Transition
+		{
+			.pResource = m_buffers[m_currentBufferIndex].Get(),
+			.Subresource = 0,
+			.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET,
+			.StateAfter = D3D12_RESOURCE_STATE_PRESENT,
+		}
+	};
+	InCmdList->ResourceBarrier(1, &barr);
 }
