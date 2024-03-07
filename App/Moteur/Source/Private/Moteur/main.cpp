@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <string>
+#include <wrl/client.h>
 
 #include "Gen_App/Config/AppConfig.h"
 
@@ -9,8 +10,11 @@
 #include "Moteur/Tools/Debug/AYC_Context.h"
 
 #include "Moteur/Handler/WindowHandler.h"
+#include "Moteur/Tools/Shader.h"
 
 using namespace AYCDX;
+using Microsoft::WRL::ComPtr;
+
 int main(int argc, char* argv[])
 {
     //INIT
@@ -19,8 +23,20 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    Shader basicRootSig3DShader("BasicRootSignature3D.cso");
+    Shader basicVS3DShader("Basic3DVS.cso");
+    Shader basicPS3DShader("Basic3DPS.cso");
+
     if (!AYC_Context::Get().Init()) {
         AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize Context !"));
+        return 0;
+    }
+
+    //root signature
+    ComPtr<ID3D12RootSignature> rootSignature3D;
+    if (FAILED(AYC_Context::Get().GetDevice()->CreateRootSignature(0, basicRootSig3DShader.GetBuffer(), basicRootSig3DShader.GetSize(), IID_PPV_ARGS(&rootSignature3D))))
+    {
+        AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot read HLSL RootSig !"));
         return 0;
     }
 

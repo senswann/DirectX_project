@@ -1,0 +1,1 @@
+#include "Moteur/Geometry/AYCShaderStructs3D.h"
