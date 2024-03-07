@@ -25,7 +25,7 @@ namespace DXWindowDefaults
 	extern const UINT DXGI_SWAP_CHAIN_FLAGS;
 	extern const DXGI_FORMAT SWAP_CHAIN_BUFFER_FORMAT;
 
-	extern const float SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4];
+	const extern float SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4];
 }
 namespace AYCDX {
 
@@ -68,9 +68,14 @@ namespace AYCDX {
 		UINT m_width = DXWindowDefaults::START_WIDTH;
 		UINT m_height = DXWindowDefaults::START_HEIGHT;
 
+		// buffers swap chain
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_swapChain;
 		Microsoft::WRL::ComPtr<ID3D12Resource2> m_buffers[DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT];
 		UINT m_currentBufferIndex = 0;
+
+		//Render Target Descriptor Heap
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescHeap;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_rtvHandles[DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT];
 
 		static LRESULT OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
 

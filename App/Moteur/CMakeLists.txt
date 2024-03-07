@@ -7,17 +7,49 @@ set(MOTEUR_PUBLIC "Source/Public/${MOTEUR_NAME}/")
 set(MOTEUR_SOURCES
 	${MOTEUR_PRIVATE}main.cpp
 	${MOTEUR_PUBLIC}pch.h
+	${MOTEUR_PUBLIC}/Tools/Shader.h		${MOTEUR_PRIVATE}/Tools/Shader.cpp
 	${MOTEUR_PUBLIC}/Tools/Debug/AYCDebugLayer.h		${MOTEUR_PRIVATE}/Tools/Debug/AYCDebugLayer.cpp
 	${MOTEUR_PUBLIC}/Tools/Debug/AYCLog.h		${MOTEUR_PRIVATE}/Tools/Debug/AYCLog.cpp
 	${MOTEUR_PUBLIC}/Tools/Debug/AYC_Context.h		${MOTEUR_PRIVATE}/Tools/Debug/AYC_Context.cpp
 	${MOTEUR_PUBLIC}/Handler/WindowHandler.h		${MOTEUR_PRIVATE}/Handler/WindowHandler.cpp
+	${MOTEUR_PUBLIC}/Handler/Pipeline/AYCPipelineHandler3D.h		${MOTEUR_PRIVATE}/Handler/Pipeline/AYCPipelineHandler3D.cpp
 )
 
-# creer les fichier qui n'existe pas dans la liste MOTEUR_SOURCES
-create_non_existing("${MOTEUR_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}" ${MOTEUR_NAME})
+set(MOTEUR_SOURCES_SHADER_PIPELINE
+  ${MOTEUR_PRIVATE}/Shaders/BasicPipeline3D.hlsli
+)
+set(MOTEUR_SOURCES_SHADER_ROOTSIG
+  ${MOTEUR_PRIVATE}/Shaders/BasicRootSignature3D.hlsl
+)
+
+# List of included shaders
+set(MOTEUR_SOURCES_SHADER_VERTEX
+  ${MOTEUR_PRIVATE}/Shaders/Basic3DVS.hlsl
+)
+# List of included shaders
+set(MOTEUR_SOURCES_SHADER_PIXEL
+  ${MOTEUR_PRIVATE}/Shaders/Basic3DPS.hlsl
+)
+
+set(MOTEUR_SOURCES_SHADER_ALL ${MOTEUR_SOURCES_SHADER_PIPELINE} ${MOTEUR_SOURCES_SHADER_ROOTSIG} ${MOTEUR_SOURCES_SHADER_VERTEX} ${MOTEUR_SOURCES_SHADER_PIXEL})
 
 ### 	FONCTION	 ###
-add_executable(${MOTEUR_NAME} ${MOTEUR_SOURCES}) # pour ajouter l'executable
+# creer les fichier qui n'existe pas dans la liste MOTEUR_SOURCES
+create_non_existing("${MOTEUR_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}" ${MOTEUR_NAME})
+create_non_existing("${MOTEUR_SOURCES_SHADER_ALL}" "${CMAKE_CURRENT_SOURCE_DIR}" ${MOTEUR_NAME})
+
+add_executable(${MOTEUR_NAME} ${MOTEUR_SOURCES} ${MOTEUR_SOURCES_SHADER_ALL}) # pour ajouter l'executable
+
+#  VS_SHADER_ENTRYPOINT main_vert # To Set Entry function name
+set_source_files_properties(${MOTEUR_SOURCES_SHADER_ROOTSIG} PROPERTIES VS_SHADER_MODEL rootsig_1.1 VS_SHADER_TYPE RootSignature)
+set_source_files_properties(${MOTEUR_PRIVATE}Shaders/BasicRootSignature3D.hlsl PROPERTIES VS_SHADER_ENTRYPOINT ROOTSIG3D)
+
+set_source_files_properties(${MOTEUR_SOURCES_SHADER_PIPELINE} PROPERTIES VS_SHADER_MODEL 6.0)
+set_source_files_properties(${MOTEUR_SOURCES_SHADER_VERTEX} PROPERTIES VS_SHADER_MODEL 6.0 VS_SHADER_TYPE Vertex)
+set_source_files_properties(${MOTEUR_SOURCES_SHADER_PIXEL} PROPERTIES VS_SHADER_MODEL 6.0 VS_SHADER_TYPE Pixel)
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MOTEUR_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MOTEUR_SOURCES_SHADER_ALL})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
     set_property(TARGET ${MOTEUR_NAME} PROPERTY CXX_STANDARD 20)

@@ -24,7 +24,7 @@ const DWORD DXwd::WINDOW_FULLSCREEN_EXSTYLE = WS_EX_APPWINDOW;
 const UINT DXwd::DXGI_SWAP_CHAIN_FLAGS	= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 const DXGI_FORMAT DXwd::SWAP_CHAIN_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-extern const float SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4];
+const float DXwd:: SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4] = {1.f,0.5f,1.f,1.f};
 
 
 bool AYCDX::WindowHandler::GetBuffers() {
@@ -32,6 +32,15 @@ bool AYCDX::WindowHandler::GetBuffers() {
 		if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_buffers[i])))) {
 			return false;
 		}
+		D3D12_RENDER_TARGET_VIEW_DESC rtvd = {
+			.Format= DXwd::SWAP_CHAIN_BUFFER_FORMAT,
+			.ViewDimension= D3D12_RTV_DIMENSION_TEXTURE2D,
+			.Texture2D = {
+				.MipSlice = 0,
+				.PlaneSlice = 0
+			}
+		};
+		AYC_Context::Get().GetDevice()->CreateRenderTargetView(m_buffers[i].Get(), &rtvd, m_rtvHandles[i]);
 	}
 	return true;
 }
@@ -67,6 +76,29 @@ bool AYCDX::WindowHandler::Init() {
 		return false;
 	}
 
+	//get monitor current
+	POINT pos{ 0,0 };
+	GetCursorPos(&pos);
+	HMONITOR monitor = MonitorFromPoint(pos, MONITOR_DEFAULTTOPRIMARY);
+
+	MONITORINFO monitorInfo{};
+	monitorInfo.cbSize = sizeof(monitorInfo);
+	GetMonitorInfoW(monitor, &monitorInfo);
+
+	m_window = CreateWindowExW(
+		DXwd::WINDOW_DEFAULT_EXSTYLE,
+		(LPCWSTR)m_wndClass,
+		DXwd::INSTANCE_NAME,
+		DXwd::WINDOW_DEFAULT_STYLE,
+		monitorInfo.rcWork.left + 100,
+		monitorInfo.rcWork.top + 100,
+		DXwd::START_WIDTH, DXwd::START_HEIGHT, nullptr, nullptr, wcex.hInstance, nullptr
+	);
+	if (m_window == nullptr)
+	{
+		return false;
+	}
+
 	const auto& factory = AYC_Context::Get().GetFactory();
 
 	DXGI_SWAP_CHAIN_DESC1 scd1 = {
@@ -93,29 +125,6 @@ bool AYCDX::WindowHandler::Init() {
 		.Windowed = true,
 	};
 
-	//get monitor current
-	POINT pos{ 0,0 };
-	GetCursorPos(&pos);
-	HMONITOR monitor = MonitorFromPoint(pos, MONITOR_DEFAULTTOPRIMARY);
-
-	MONITORINFO monitorInfo{};
-	monitorInfo.cbSize = sizeof(monitorInfo);
-	GetMonitorInfoW(monitor, &monitorInfo);
-
-	m_window = CreateWindowExW(
-		DXwd::WINDOW_DEFAULT_EXSTYLE,
-		(LPCWSTR)m_wndClass,
-		DXwd::INSTANCE_NAME,
-		DXwd::WINDOW_DEFAULT_STYLE,
-		monitorInfo.rcWork.left + 100,
-		monitorInfo.rcWork.top + 100,
-		DXwd::START_WIDTH, DXwd::START_HEIGHT, nullptr, nullptr, wcex.hInstance, nullptr
-	);
-	if (m_window == nullptr)
-	{
-		return false;
-	}
-
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> sc1;
 
 	result = factory->CreateSwapChainForHwnd(
@@ -134,8 +143,31 @@ bool AYCDX::WindowHandler::Init() {
 	result = sc1.CopyTo(IID_PPV_ARGS(&m_swapChain));
 
 	if (FAILED(result)) {
-		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize result !"), result);
+		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize swap chain !"), result);
 		return false;
+	}
+
+	//create rander target heap
+	static const D3D12_DESCRIPTOR_HEAP_TYPE rtvHeapType = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {
+		.Type = rtvHeapType,
+		.NumDescriptors = DXwd::SWAP_CHAIN_BUFFER_COUNT,
+		.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+		.NodeMask = 0
+	};
+
+	result = AYC_Context::Get().GetDevice()->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&m_rtvDescHeap));
+	if (FAILED(result)) {
+		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize render target view !"), result);
+		return false;
+	}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE firstHandle = m_rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT handleSizeInDevice = AYC_Context::Get().GetDevice()->GetDescriptorHandleIncrementSize(rtvHeapType);
+
+	for (size_t i = 0; i < DXwd::SWAP_CHAIN_BUFFER_COUNT; i++) {
+		m_rtvHandles[i] = firstHandle;
+		m_rtvHandles[i].ptr += i * handleSizeInDevice;
 	}
 
 	if (!GetBuffers()) {
@@ -147,6 +179,9 @@ bool AYCDX::WindowHandler::Init() {
 
 void AYCDX::WindowHandler::Shutdown() {
 	ReleaseBuffers();
+
+	m_rtvDescHeap.Reset();
+
 	m_swapChain.Reset();
 	if (m_window) {
 		DestroyWindow(m_window);
@@ -259,10 +294,14 @@ void AYCDX::WindowHandler::BeginFrame(ID3D12GraphicsCommandList7* InCmdList){
 			.pResource = m_buffers[m_currentBufferIndex].Get(),
 			.Subresource = 0,
 			.StateBefore = D3D12_RESOURCE_STATE_PRESENT,
-			.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET,
+			.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET
 		}
 	};
 	InCmdList->ResourceBarrier(1, &barr);
+	InCmdList->ClearRenderTargetView(m_rtvHandles[m_currentBufferIndex], DXwd::SWAP_CHAIN_BUFFER_BACKGROUND_COLOR, 0, nullptr);
+	
+	
+	InCmdList->OMSetRenderTargets(1, &m_rtvHandles[m_currentBufferIndex], false, nullptr);
 }
 
 void AYCDX::WindowHandler::EndFrame(ID3D12GraphicsCommandList7* InCmdList)
@@ -277,7 +316,7 @@ void AYCDX::WindowHandler::EndFrame(ID3D12GraphicsCommandList7* InCmdList)
 			.pResource = m_buffers[m_currentBufferIndex].Get(),
 			.Subresource = 0,
 			.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET,
-			.StateAfter = D3D12_RESOURCE_STATE_PRESENT,
+			.StateAfter = D3D12_RESOURCE_STATE_PRESENT
 		}
 	};
 	InCmdList->ResourceBarrier(1, &barr);
