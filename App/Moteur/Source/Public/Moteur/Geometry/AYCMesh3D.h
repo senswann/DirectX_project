@@ -10,25 +10,25 @@
 
 namespace AYCDX
 {
-	enum class YVMeshStateType : uint8_t
+	enum class AYCMeshStateType : uint8_t
 	{
 		Unknown = 0,
 		NeedUpload = 1,
 		WaitingUpload = 2,
 		ResourceLive = 3
 	};
-	class YVMeshStateType_Func
+	class AYCMeshStateType_Func
 	{
 	public:
-		YVMeshStateType_Func() = delete;
-		YVMeshStateType_Func(const YVMeshStateType_Func&) = delete;
-		YVMeshStateType_Func& operator= (const YVMeshStateType_Func&) = delete;
+		AYCMeshStateType_Func() = delete;
+		AYCMeshStateType_Func(const AYCMeshStateType_Func&) = delete;
+		AYCMeshStateType_Func& operator= (const AYCMeshStateType_Func&) = delete;
 
 	public:
-		static const std::string& ToString(const YVMeshStateType InType);
+		static const std::string& ToString(const AYCMeshStateType InType);
 	};
 
-	class YVMesh3D
+	class AYCMesh3D
 	{
 	public:
 		static constexpr UINT VERTEX_SIZE = (UINT)sizeof(AYCDX::VertexPositionUVColor);
@@ -37,7 +37,7 @@ namespace AYCDX
 		std::vector<VertexPositionUVColor> m_vertexes;
 
 		//GPU Resources
-		YVMeshStateType m_vertexBufferState = YVMeshStateType::NeedUpload;
+		AYCMeshStateType m_vertexBufferState = AYCMeshStateType::NeedUpload;
 		//Upload from CPU to GPU
 		Microsoft::WRL::ComPtr<ID3D12Resource2> m_uploadBuffer;
 		//Vertex in GPU
@@ -61,11 +61,11 @@ namespace AYCDX
 		bool DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList) const;
 		bool DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList, const AYCTransform3DMatrix& InPinnedTransformMatrix) const;
 	public:
-		YVMesh3D(const std::vector<VertexPositionUVColor>& InVertexes);
-		YVMesh3D(std::vector<VertexPositionUVColor>&& InVertexes);
+		AYCMesh3D(const std::vector<VertexPositionUVColor>& InVertexes);
+		AYCMesh3D(std::vector<VertexPositionUVColor>&& InVertexes);
 
-		~YVMesh3D();
+		~AYCMesh3D();
 	private:
-		YVMesh3D();
+		AYCMesh3D();
 	};
 }

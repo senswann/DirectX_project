@@ -13,28 +13,28 @@ inline static TInterger Align(const TInterger SizeValue, TInterger Alignement)
 	return ((SizeValue + (Alignement - 1)) / Alignement) * Alignement;
 };
 
-UINT64 AYCDX::YVMesh3D::GetAlignedVertexBufferSize() const
+UINT64 AYCDX::AYCMesh3D::GetAlignedVertexBufferSize() const
 {
 	return Align<UINT64>(this->GetUsedVertexBufferSize(), 1024);
 }
 
-bool AYCDX::YVMesh3D::FreeUploadBuffer()
+bool AYCDX::AYCMesh3D::FreeUploadBuffer()
 {
 	m_uploadBuffer.Reset();
 
 	m_vertexBufferState = (bool)m_vertexesBuffer ?
-		YVMeshStateType::ResourceLive :
-		YVMeshStateType::NeedUpload;
+		AYCMeshStateType::ResourceLive :
+		AYCMeshStateType::NeedUpload;
 	return true;
 }
 
-bool AYCDX::YVMesh3D::FreeAllBuffers()
+bool AYCDX::AYCMesh3D::FreeAllBuffers()
 {
 	m_vertexesBuffer.Reset();
 	return FreeUploadBuffer();
 }
 
-bool AYCDX::YVMesh3D::UploadResources(ID3D12Device10* InDevice, ID3D12GraphicsCommandList7* InUploadCommandList)
+bool AYCDX::AYCMesh3D::UploadResources(ID3D12Device10* InDevice, ID3D12GraphicsCommandList7* InUploadCommandList)
 {
 	if (GetVertexCount() < 3)
 	{
@@ -123,21 +123,21 @@ bool AYCDX::YVMesh3D::UploadResources(ID3D12Device10* InDevice, ID3D12GraphicsCo
 
 	InUploadCommandList->CopyBufferRegion(m_vertexesBuffer.Get(), /*offset*/0, m_uploadBuffer.Get(), /*offset*/0, AlignedVertexBufferSize);
 
-	m_vertexBufferState = YVMeshStateType::WaitingUpload;
+	m_vertexBufferState = AYCMeshStateType::WaitingUpload;
 	return true;
 }
 
-bool AYCDX::YVMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList) const
+bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList) const
 {
 	return false;
 }
 
-bool AYCDX::YVMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList, const AYCTransform3DMatrix& InPinnedTransformMatrix) const
+bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList, const AYCTransform3DMatrix& InPinnedTransformMatrix) const
 {
 	return false;
 }
 
-AYCDX::YVMesh3D::YVMesh3D(const std::vector<VertexPositionUVColor>& InVertexes)
+AYCDX::AYCMesh3D::AYCMesh3D(const std::vector<VertexPositionUVColor>& InVertexes)
 	:m_vertexes(InVertexes.size())
 {
 	for (const VertexPositionUVColor& vertex : InVertexes)
@@ -146,16 +146,16 @@ AYCDX::YVMesh3D::YVMesh3D(const std::vector<VertexPositionUVColor>& InVertexes)
 	}
 }
 
-AYCDX::YVMesh3D::YVMesh3D(std::vector<VertexPositionUVColor>&& InVertexes)
+AYCDX::AYCMesh3D::AYCMesh3D(std::vector<VertexPositionUVColor>&& InVertexes)
 	:m_vertexes(std::move(InVertexes))
 {
 }
 
-AYCDX::YVMesh3D::~YVMesh3D()
+AYCDX::AYCMesh3D::~AYCMesh3D()
 {
 }
 
-AYCDX::YVMesh3D::YVMesh3D()
+AYCDX::AYCMesh3D::AYCMesh3D()
 	:m_vertexes(0)
 {
 }
@@ -164,17 +164,17 @@ const std::string UNKNOWN_NAME = "Unknown";
 const std::string NEED_UPLOAD_NAME = "NeedUpload";
 const std::string WAITING_UPLOAD_NAME = "WaitingUpload";
 const std::string RESOURCE_LIVE_NAME = "ResourceLive";
-const std::string& YVMeshStateType_Func::ToString(const YVMeshStateType InType)
+const std::string& AYCMeshStateType_Func::ToString(const AYCMeshStateType InType)
 {
 	switch (InType)
 	{
-	case YVMeshStateType::Unknown:
+	case AYCMeshStateType::Unknown:
 		return UNKNOWN_NAME;
-	case YVMeshStateType::NeedUpload:
+	case AYCMeshStateType::NeedUpload:
 		return NEED_UPLOAD_NAME;
-	case YVMeshStateType::WaitingUpload:
+	case AYCMeshStateType::WaitingUpload:
 		return WAITING_UPLOAD_NAME;
-	case YVMeshStateType::ResourceLive:
+	case AYCMeshStateType::ResourceLive:
 		return RESOURCE_LIVE_NAME;
 	default:
 		AYCLog::Log(LOG_EXCEPTION, TEXT("Not implemented default case in switch YVMeshStateType !"));
