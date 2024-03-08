@@ -12,8 +12,13 @@
 #include "Moteur/Handler/WindowHandler.h"
 #include "Moteur/Tools/Shader.h"
 
+#include "Moteur/Geometry/AYCMesh3D.h"
+#include "Moteur/Geometry/AYCBasicShapFactory.h"
+
 using namespace AYCDX;
 using Microsoft::WRL::ComPtr;
+
+static DirectX::XMFLOAT3 CubeColor = DirectX::XMFLOAT3(1.f, .5f, 1.f);
 
 int main(int argc, char* argv[])
 {
@@ -31,6 +36,28 @@ int main(int argc, char* argv[])
         AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot initialize Context !"));
         return 0;
     }
+
+    AYCMesh3D defaultCubeMesh = AYCBasicShapeFactory::CreateMesh_Cube(CubeColor);
+
+    //---------Upload inital resources---------//
+    {
+        //Copy CPU Resource --> GPU Resource
+        auto* uploadList = AYC_Context::Get().InitCommandList();
+
+        if (!defaultCubeMesh.UploadResources(AYC_Context::Get().GetDevice().Get(), uploadList))
+        {
+            AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot upload Cube to GPU !"));
+        }
+        //Todo : Upload other things 
+
+
+        AYC_Context::Get().ExecuteCommandList();
+        uploadList = nullptr;
+
+        defaultCubeMesh.FreeUploadBuffer();
+    }
+
+    //-------End Upload inital resources-------//
 
     //root signature
     ComPtr<ID3D12RootSignature> rootSignature3D;
@@ -77,7 +104,13 @@ int main(int argc, char* argv[])
 
     WindowHandler::Get().Shutdown();
 
+    //destroy object draw
+    defaultCubeMesh.FreeAllBuffers();
+
     AYC_Context::Get().Shutdown();
+
+    rootSignature3D.Reset();
+
     AYCDebugLayer::Get().Shutdown();
     //std::cin.get();
     return 0;

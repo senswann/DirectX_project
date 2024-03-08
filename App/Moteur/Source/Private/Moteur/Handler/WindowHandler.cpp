@@ -23,11 +23,12 @@ const DWORD DXwd::WINDOW_FULLSCREEN_EXSTYLE = WS_EX_APPWINDOW;
 
 const UINT DXwd::DXGI_SWAP_CHAIN_FLAGS	= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 const DXGI_FORMAT DXwd::SWAP_CHAIN_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+const DXGI_FORMAT DXwd::DEPTH_BUFFER_FORMAT = DXGI_FORMAT_D32_FLOAT;
 
 const float DXwd:: SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4] = {1.f,0.5f,1.f,1.f};
 
 
-bool AYCDX::WindowHandler::GetBuffers() {
+bool AYCDX::WindowHandler::GetRTVBuffers() {
 	for (size_t i = 0; i < DXwd::SWAP_CHAIN_BUFFER_COUNT; ++i) {
 		if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_buffers[i])))) {
 			return false;
@@ -170,7 +171,25 @@ bool AYCDX::WindowHandler::Init() {
 		m_rtvHandles[i].ptr += i * handleSizeInDevice;
 	}
 
-	if (!GetBuffers()) {
+	//Create Depth Buffer Desc
+	D3D12_DESCRIPTOR_HEAP_DESC DepthBufferHeapDesc
+	{
+		.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		.NumDescriptors = 1,
+		.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+		.NodeMask = 0
+	};
+	if (FAILED(AYC_Context::Get().GetDevice()->CreateDescriptorHeap(&DepthBufferHeapDesc, IID_PPV_ARGS(&m_dbvDescHeap))))
+	{
+		AYCLog::Log(LOG_EXCEPTION, TEXT("Can't create a Descriptor Heap for Depth Buffer"), result);
+		return false;
+	}
+
+	if (!GetRTVBuffers()) {
+		return false;
+	}
+
+	if (!CreateDepthBuffer(DXwd::START_WIDTH, DXwd::START_HEIGHT)) {
 		return false;
 	}
 
@@ -183,6 +202,10 @@ void AYCDX::WindowHandler::Shutdown() {
 	m_rtvDescHeap.Reset();
 
 	m_swapChain.Reset();
+
+	m_depthBuffer.Reset();
+	m_dbvDescHeap.Reset();
+
 	if (m_window) {
 		DestroyWindow(m_window);
 	}
@@ -232,6 +255,62 @@ void AYCDX::WindowHandler::SetFullscreen(bool enabled)
 	m_isFullscreen = enabled;
 }
 
+bool AYCDX::WindowHandler::CreateDepthBuffer(UINT InWidth, UINT InHeight)
+{
+	D3D12_HEAP_PROPERTIES depthHeapProperties =
+	{
+		.Type = D3D12_HEAP_TYPE_DEFAULT,
+		.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+		.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN,
+		.CreationNodeMask = 1,
+		.VisibleNodeMask = 1
+	};
+
+	D3D12_RESOURCE_DESC depthResourceDesc
+	{
+		.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D,
+		.Alignment = 0,
+		.Width = InWidth,
+		.Height = InHeight,
+		.DepthOrArraySize = 1,
+		.MipLevels = 1,
+		.Format = DXwd::DEPTH_BUFFER_FORMAT,
+		.SampleDesc = {.Count = 1, .Quality = 0},
+		.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
+		.Flags = (D3D12_RESOURCE_FLAG_NONE | D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+	};
+	D3D12_CLEAR_VALUE clearValue =
+	{
+		.Format = DXwd::DEPTH_BUFFER_FORMAT,
+		.DepthStencil =
+		{
+			.Depth = 0.f,
+			.Stencil = 0
+		}
+	};
+
+	if (FAILED(AYC_Context::Get().GetDevice()->CreateCommittedResource(
+		&depthHeapProperties, D3D12_HEAP_FLAG_NONE, &depthResourceDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue, IID_PPV_ARGS(&m_depthBuffer)
+	)))
+	{
+		AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot create new Depth Buffer !"));
+		return false;
+	}
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dbvDesc =
+	{
+		.Format = DXwd::DEPTH_BUFFER_FORMAT,
+		.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+		.Flags = D3D12_DSV_FLAG_NONE
+	};
+	AYC_Context::Get().GetDevice()->CreateDepthStencilView(
+		m_depthBuffer.Get(),
+		&dbvDesc,
+		m_dbvDescHeap->GetCPUDescriptorHandleForHeapStart());
+	return true;
+}
+
 void AYCDX::WindowHandler::Resize() {
 	ReleaseBuffers();
 	RECT rect;
@@ -244,9 +323,13 @@ void AYCDX::WindowHandler::Resize() {
 		if (FAILED(result)) {
 			AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot resize Buffers !"), result);
 		}
+		if (!CreateDepthBuffer(m_width, m_height))
+		{
+			AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot resize Depth Buffers !"), result);
+		}
 		m_shouldResize = false;
 	}
-	GetBuffers();
+	GetRTVBuffers();
 }
 
 void AYCDX::WindowHandler::Present() {
@@ -298,8 +381,9 @@ void AYCDX::WindowHandler::BeginFrame(ID3D12GraphicsCommandList7* InCmdList){
 		}
 	};
 	InCmdList->ResourceBarrier(1, &barr);
+	D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = m_dbvDescHeap->GetCPUDescriptorHandleForHeapStart();
 	InCmdList->ClearRenderTargetView(m_rtvHandles[m_currentBufferIndex], DXwd::SWAP_CHAIN_BUFFER_BACKGROUND_COLOR, 0, nullptr);
-	
+	InCmdList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr);
 	
 	InCmdList->OMSetRenderTargets(1, &m_rtvHandles[m_currentBufferIndex], false, nullptr);
 }

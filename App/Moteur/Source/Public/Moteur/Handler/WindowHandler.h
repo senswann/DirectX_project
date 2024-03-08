@@ -24,6 +24,7 @@ namespace DXWindowDefaults
 	constexpr UINT SWAP_CHAIN_BUFFER_COUNT = 2;
 	extern const UINT DXGI_SWAP_CHAIN_FLAGS;
 	extern const DXGI_FORMAT SWAP_CHAIN_BUFFER_FORMAT;
+	extern const DXGI_FORMAT DEPTH_BUFFER_FORMAT;
 
 	const extern float SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4];
 }
@@ -49,6 +50,7 @@ namespace AYCDX {
 		void SetFullscreen(bool enabled);
 
 		void Resize();
+		bool CreateDepthBuffer(UINT InWidth, UINT InHeight);
 		void Present();
 
 		void BeginFrame(ID3D12GraphicsCommandList7* InCmdList);
@@ -77,12 +79,16 @@ namespace AYCDX {
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescHeap;
 		D3D12_CPU_DESCRIPTOR_HANDLE m_rtvHandles[DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT];
 
+		//Depth buffer for OM
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dbvDescHeap;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_depthBuffer;
+
 		static LRESULT OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 		static WindowHandler Instance;
 		WindowHandler() = default;
 
-		bool GetBuffers();
+		bool GetRTVBuffers();
 		void ReleaseBuffers();
 	};
 }
