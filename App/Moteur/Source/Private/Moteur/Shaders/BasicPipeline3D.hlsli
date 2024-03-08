@@ -1,8 +1,11 @@
-struct MeshCBV
+cbuffer VSConstants : register(b0)
 {
-    float4x4 modelMatrix;
-};
-struct ContextCBV
+    float4x4 ModelMatrix;
+    float4x4 ViewProjectionMatrix;
+}
+struct VS_OUTPUT
 {
-    float4x4 viewProjectionMatrix;
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR;
+    float2 UV : Texcoord;
 };

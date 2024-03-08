@@ -39,6 +39,10 @@ namespace AYCDX {
 		inline static WindowHandler& Get() { return Instance; };
 		inline bool GetClose() { return m_shouldClose; };
 		inline bool GetResize() { return m_shouldResize; };
+		inline float GetAspectRatio() const { return (float)m_width / (float)m_height; };
+
+		inline UINT GetWidth() const { return m_width; };
+		inline UINT GetHeight() const { return m_height; };
 
 		bool Init(/*Prametre*/);
 		void Shutdown();

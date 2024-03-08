@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <fstream>
 
+using namespace AYCDX;
+
 Shader::Shader(std::string_view InShaderName)
 {
 	static std::filesystem::path shaderDir;

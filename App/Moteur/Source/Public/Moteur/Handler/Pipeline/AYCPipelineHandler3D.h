@@ -11,7 +11,7 @@ namespace AYCDX {
 	
 	public:
 		bool Init(ID3D12RootSignature* InRootSignature3D, const class Shader* InVertexShader3D, const Shader* InPixelShader3D);
+		inline const D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetStateDesc3D() const { return m_pipelineStateDesc3D; }
 		void Shutdown();
-
 	};
 }

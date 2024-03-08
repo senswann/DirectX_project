@@ -129,12 +129,23 @@ bool AYCDX::AYCMesh3D::UploadResources(ID3D12Device10* InDevice, ID3D12GraphicsC
 
 bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList) const
 {
-	return false;
+	D3D12_VERTEX_BUFFER_VIEW vbv
+	{
+		.BufferLocation = this->GetVertexesBuffer()->GetGPUVirtualAddress(),
+		.SizeInBytes = (UINT)/*narrow conversion*/GetVertexUnitSize() * this->GetVertexCount(),
+		.StrideInBytes = (UINT)/*narrow conversion*/GetVertexUnitSize()
+	};
+	InUploadCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	InUploadCommandList->IASetVertexBuffers(0, 1, &vbv);
+
+	InUploadCommandList->DrawInstanced(this->GetVertexCount(), 1, 0, 0);
+	return true;
 }
 
-bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList, const AYCTransform3DMatrix& InPinnedTransformMatrix) const
+bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList, const AYCTransform3DMatrix& InPinnedransformMatrix) const
 {
-	return false;
+	InUploadCommandList->SetGraphicsRoot32BitConstants(0, 16, &InPinnedransformMatrix.GetMatrix(), 0);
+	return DrawMesh(InUploadCommandList);
 }
 
 AYCDX::AYCMesh3D::AYCMesh3D(const std::vector<VertexPositionUVColor>& InVertexes)

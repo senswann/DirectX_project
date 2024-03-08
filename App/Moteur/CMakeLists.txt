@@ -7,6 +7,7 @@ set(MOTEUR_PUBLIC "Source/Public/${MOTEUR_NAME}/")
 set(MOTEUR_SOURCES
 	${MOTEUR_PRIVATE}main.cpp
 	${MOTEUR_PUBLIC}pch.h
+	 ${MOTEUR_PUBLIC}Geometry/AYC_CameraData.h						${MOTEUR_PRIVATE}Geometry/AYC_CameraData.cpp
 	 ${MOTEUR_PUBLIC}Geometry/AYCTransform3D.h						${MOTEUR_PRIVATE}Geometry/AYCTransform3D.cpp
 	${MOTEUR_PUBLIC}Geometry/AYCShaderStructs3D.h					${MOTEUR_PRIVATE}Geometry/AYCShaderStructs3D.cpp
 	${MOTEUR_PUBLIC}Geometry/AYCMesh3D.h							${MOTEUR_PRIVATE}Geometry/AYCMesh3D.cpp
