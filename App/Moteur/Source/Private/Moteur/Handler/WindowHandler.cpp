@@ -25,7 +25,7 @@ const UINT DXwd::DXGI_SWAP_CHAIN_FLAGS	= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH 
 const DXGI_FORMAT DXwd::SWAP_CHAIN_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 const DXGI_FORMAT DXwd::DEPTH_BUFFER_FORMAT = DXGI_FORMAT_D32_FLOAT;
 
-const float DXwd:: SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4] = {1.f,0.5f,1.f,1.f};
+const float DXwd:: SWAP_CHAIN_BUFFER_BACKGROUND_COLOR[4] = {.04f,1.f,.87f,1.f};
 
 
 bool AYCDX::WindowHandler::GetRTVBuffers() {
@@ -348,6 +348,18 @@ LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam,
 		{
 		case YNOV_KEY_F11:
 			Get().ToggleFulscreen();
+			break;
+		case 'Q':
+			Get().m_ObjectRotation.x += .75f;
+			break;
+		case 'D':
+			Get().m_ObjectRotation.x -= .75f;
+			break;
+		case 'Z':
+			Get().m_ObjectRotation.y += .75f;
+			break;
+		case 'S':
+			Get().m_ObjectRotation.y -= .75f;
 			break;
 		default:
 			break;

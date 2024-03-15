@@ -22,7 +22,7 @@ using namespace AYCDX;
 
 using Microsoft::WRL::ComPtr;
 
-static DirectX::XMFLOAT3 CubeColor = DirectX::XMFLOAT3(1.f, 0.f, 0.f);
+static DirectX::XMFLOAT3 CubeColor = DirectX::XMFLOAT3(1.f, 0.f, .5f);
 
 int main(int argc, char* argv[])
 {
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
         static bool isGoingLeft = false;
         float Direction = isGoingLeft ? -1.0f : 1.0f;
         static float CamYPos = -2.0f;
-        CamYPos += (0.05f * Direction);
+        //CamYPos += (0.05f * Direction);
         if (CamYPos > 2.0f || CamYPos < -2.0f)
         {
             isGoingLeft = !isGoingLeft;
@@ -179,10 +179,11 @@ int main(int argc, char* argv[])
             AYCTransform3D
             {
                 .Position = { 0.f, 0.f,  0.f },
-                .Rotation = { 0.f, 0.f,  0.f },
+                .Rotation = window->GetRotationNeed(),
                 .Scale = { 1.f, 1.f,  1.f }
             }
         };
+
         defaultCubeMesh.DrawMesh(drawlist, CubePosition);
 
         /////////////////////End working With default 3D Render Pipeline/////////////////////////////

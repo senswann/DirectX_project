@@ -29,6 +29,7 @@ namespace AYCDX
 		DirectX::XMFLOAT4X4 m_model;
 	public:
 		AYCTransform3DMatrix(const AYCTransform3D& InTransform);
+		void RotateObject(float x_rot, float y_rot, float z_rot);
 	public:
 		const AYCTransform3D& GetTransform() const { return m_transform; };
 		void SetTransform(const AYCTransform3D& InTransform);

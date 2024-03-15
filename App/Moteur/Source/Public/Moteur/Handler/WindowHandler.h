@@ -1,5 +1,6 @@
 #pragma once
 #include "Moteur/pch.h"
+#include <DirectXMath.h>
 #include <wrl/client.h>
 
 namespace DXWindowDefaults
@@ -41,6 +42,10 @@ namespace AYCDX {
 		inline bool GetResize() { return m_shouldResize; };
 		inline float GetAspectRatio() const { return (float)m_width / (float)m_height; };
 
+		//Rotation object
+		inline void ResetNeedRotation() { m_needRotation = false;};
+		inline DirectX::XMFLOAT3 GetRotationNeed() const { return m_ObjectRotation; };
+
 		inline UINT GetWidth() const { return m_width; };
 		inline UINT GetHeight() const { return m_height; };
 
@@ -73,6 +78,10 @@ namespace AYCDX {
 
 		UINT m_width = DXWindowDefaults::START_WIDTH;
 		UINT m_height = DXWindowDefaults::START_HEIGHT;
+
+		//rotation object
+		bool m_needRotation = false;
+		DirectX::XMFLOAT3 m_ObjectRotation = { 0.f, 0.f, 0.f };
 
 		// buffers swap chain
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_swapChain;

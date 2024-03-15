@@ -26,6 +26,13 @@ DirectX::XMMATRIX AYCTransform3D::ComputeTRSMatrix() const
     );
 }
 
+void AYCDX::AYCTransform3DMatrix::RotateObject(float x_rot, float y_rot, float z_rot)
+{
+    m_transform.Rotation.x = x_rot;
+    m_transform.Rotation.y = y_rot;
+    m_transform.Rotation.z = z_rot;
+}
+
 AYCTransform3DMatrix::AYCTransform3DMatrix(const AYCTransform3D& InTransform)
 {
     SetTransform(InTransform);
