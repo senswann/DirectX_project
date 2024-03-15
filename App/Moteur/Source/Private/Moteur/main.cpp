@@ -23,6 +23,7 @@ using namespace AYCDX;
 using Microsoft::WRL::ComPtr;
 
 static DirectX::XMFLOAT3 CubeColor = DirectX::XMFLOAT3(1.f, 0.f, .5f);
+static DirectX::XMFLOAT3 CubeColor2 = DirectX::XMFLOAT3(0.f, .5f, 1.f);
 
 int main(int argc, char* argv[])
 {
@@ -43,6 +44,7 @@ int main(int argc, char* argv[])
     }
 
     AYCMesh3D defaultCubeMesh = AYCBasicShapeFactory::CreateMesh_Cube(CubeColor);
+    AYCMesh3D defaultCubeMesh2 = AYCBasicShapeFactory::CreateMesh_Cube(CubeColor2);
 
     //---------Upload inital resources---------//
     {
@@ -50,6 +52,10 @@ int main(int argc, char* argv[])
         auto* uploadList = AYC_Context::Get().InitCommandList();
 
         if (!defaultCubeMesh.UploadResources(AYC_Context::Get().GetDevice().Get(), uploadList))
+        {
+            AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot upload Cube to GPU !"));
+        }
+        if (!defaultCubeMesh2.UploadResources(AYC_Context::Get().GetDevice().Get(), uploadList))
         {
             AYCLog::Log(LOG_EXCEPTION, TEXT("Cannot upload Cube to GPU !"));
         }
@@ -129,16 +135,16 @@ int main(int argc, char* argv[])
 
         static bool isGoingLeft = false;
         float Direction = isGoingLeft ? -1.0f : 1.0f;
-        static float CamYPos = -2.0f;
-        //CamYPos += (0.05f * Direction);
-        if (CamYPos > 2.0f || CamYPos < -2.0f)
+        static DirectX::XMFLOAT3 CamPos = { -5.f, -2.0f,  2.0f };
+        //CamPos.y += (0.05f * Direction);
+        if (CamPos.y > 2.0f || CamPos.y < -2.0f)
         {
             isGoingLeft = !isGoingLeft;
         }
         //Declare a camera
         AYC_CameraData CameraData =
         {
-            .Position = DirectX::XMFLOAT3{ -5.f, CamYPos,  2.0f },
+            .Position = CamPos,
             .Target = { 0.f, 0.f,  0.f },
             .Up = { 0.f, 0.f,  1.f },
 
@@ -174,6 +180,7 @@ int main(int argc, char* argv[])
 
         drawlist->SetGraphicsRoot32BitConstants(0, 32, &ModelViewProjectionCBV, 0);
 
+        //1st cube
         AYCTransform3DMatrix CubePosition =
         {
             AYCTransform3D
@@ -185,6 +192,27 @@ int main(int argc, char* argv[])
         };
 
         defaultCubeMesh.DrawMesh(drawlist, CubePosition);
+
+        //2nd cube
+        static DirectX::XMFLOAT3 cube2pos = { 1.f,1.f,1.f };
+        static DirectX::XMFLOAT3 cube2rot = { 0.f,0.f,0.f };
+
+        cube2rot.x += 0.5f;
+        cube2rot.y += 0.5f;
+        cube2rot.z += 0.5f;
+
+        AYCTransform3DMatrix CubePosition2 =
+        {
+            AYCTransform3D
+            {
+                .Position = cube2pos,
+                .Rotation = cube2rot,
+                .Scale = { 1.f, 1.f,  1.f }
+            }
+        };
+
+        defaultCubeMesh2.DrawMesh(drawlist, CubePosition2);
+
 
         /////////////////////End working With default 3D Render Pipeline/////////////////////////////
 
@@ -205,6 +233,7 @@ int main(int argc, char* argv[])
 
     //destroy object draw
     defaultCubeMesh.FreeAllBuffers();
+    defaultCubeMesh2.FreeAllBuffers();
 
     AYC_Context::Get().Shutdown();
 
