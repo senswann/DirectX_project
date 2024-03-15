@@ -13,3 +13,9 @@ Pour que le projet soit fonctionnel veuillez suivre les instructions suivante :
   - cmake --buid . | permet de génerer la build
 
 - lors de la géneration de la build un fichier .sln sera générer. il suffira de l'ouvrir avec Visual Studio et de générer un éxécutable.
+
+#commandes
+
+pour faire une rotation sur le cube central : Z/Q/S/D
+
+pour déplacer la camera : fleche directionnel
