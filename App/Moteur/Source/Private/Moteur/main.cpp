@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <wrl/client.h>
@@ -24,6 +25,19 @@ using Microsoft::WRL::ComPtr;
 
 static DirectX::XMFLOAT3 CubeColor = DirectX::XMFLOAT3(1.f, 0.f, .5f);
 static DirectX::XMFLOAT3 CubeColor2 = DirectX::XMFLOAT3(0.f, .5f, 1.f);
+
+constexpr float radius = 2.0f;
+constexpr float angularSpeed = 1.f;
+
+void UpdateCubePosition(DirectX::XMFLOAT3& cubePos, float deltaTime) {
+    static float angle = 0.0f;
+    angle += angularSpeed * deltaTime;
+
+    float newX = radius * std::cos(angle);
+    float newZ = radius * std::sin(angle);
+
+    cubePos = { newX, cubePos.y, newZ };
+}
 
 int main(int argc, char* argv[])
 {
@@ -103,6 +117,10 @@ int main(int argc, char* argv[])
     //declaration MVP
     ModelViewprojectionConstants ModelViewProjectionCBV;
 
+    //delta time initialisation
+    auto lastTime = std::chrono::high_resolution_clock::now();
+    double deltaTime = 0.0;
+
     //boucle de rendu
     while (!WindowHandler::Get().GetClose()) {
         //Process Window Event
@@ -162,7 +180,17 @@ int main(int argc, char* argv[])
         ID3D12GraphicsCommandList7* drawlist = AYC_Context::Get().InitCommandList();
 
         window->BeginFrame(drawlist);
-        double deltaTime = 0;
+        // Calcul du Delta time
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> timeElapsed = currentTime - lastTime;
+        deltaTime = timeElapsed.count();
+
+        lastTime = currentTime;
+
+        // Convertir deltaTime en une chaîne de caractères
+        std::ostringstream ss;
+        ss << std::fixed << std::setprecision(6) << deltaTime;
+        std::string deltaTimeStr = ss.str();
 
         //Fill CommandList
         //Set Draw zone on screeen
@@ -194,12 +222,13 @@ int main(int argc, char* argv[])
         defaultCubeMesh.DrawMesh(drawlist, CubePosition);
 
         //2nd cube
-        static DirectX::XMFLOAT3 cube2pos = { 1.f,1.f,1.f };
+        static DirectX::XMFLOAT3 cube2pos = { 0.f,0.f,0.f };
+        UpdateCubePosition(cube2pos, deltaTime);
         static DirectX::XMFLOAT3 cube2rot = { 0.f,0.f,0.f };
-
         cube2rot.x += 0.5f;
         cube2rot.y += 0.5f;
         cube2rot.z += 0.5f;
+
 
         AYCTransform3DMatrix CubePosition2 =
         {
@@ -207,7 +236,7 @@ int main(int argc, char* argv[])
             {
                 .Position = cube2pos,
                 .Rotation = cube2rot,
-                .Scale = { 1.f, 1.f,  1.f }
+                .Scale = { 0.5f, 0.5f,  0.5f }
             }
         };
 
