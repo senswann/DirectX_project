@@ -349,6 +349,8 @@ LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam,
 		case YNOV_KEY_F11:
 			Get().ToggleFulscreen();
 			break;
+
+		//rotation object
 		case 'Q':
 			Get().m_ObjectRotation.x += .75f;
 			break;
@@ -360,6 +362,19 @@ LRESULT AYCDX::WindowHandler::OnWindowMessage(HWND wnd, UINT msg, WPARAM wparam,
 			break;
 		case 'S':
 			Get().m_ObjectRotation.y -= .75f;
+			break;
+		//deplacement camera
+		case VK_UP:
+			Get().m_CamPos.x += 0.1f;
+			break;
+		case VK_DOWN:
+			Get().m_CamPos.x -= 0.1f;
+			break;
+		case VK_LEFT:
+			Get().m_CamPos.y += 0.1f;
+			break;
+		case VK_RIGHT:
+			Get().m_CamPos.y -= 0.1f;
 			break;
 		default:
 			break;

@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
         //Declare a camera
         AYC_CameraData CameraData =
         {
-            .Position = CamPos,
+            .Position = window->GetCameraPos(),
             .Target = { 0.f, 0.f,  0.f },
             .Up = { 0.f, 0.f,  1.f },
 

@@ -43,8 +43,8 @@ namespace AYCDX {
 		inline float GetAspectRatio() const { return (float)m_width / (float)m_height; };
 
 		//Rotation object
-		inline void ResetNeedRotation() { m_needRotation = false;};
 		inline DirectX::XMFLOAT3 GetRotationNeed() const { return m_ObjectRotation; };
+		inline DirectX::XMFLOAT3 GetCameraPos() const { return m_CamPos; };
 
 		inline UINT GetWidth() const { return m_width; };
 		inline UINT GetHeight() const { return m_height; };
@@ -80,8 +80,10 @@ namespace AYCDX {
 		UINT m_height = DXWindowDefaults::START_HEIGHT;
 
 		//rotation object
-		bool m_needRotation = false;
 		DirectX::XMFLOAT3 m_ObjectRotation = { 0.f, 0.f, 0.f };
+
+		//camera
+		DirectX::XMFLOAT3 m_CamPos = { -5.f, -2.f,  2.f };
 
 		// buffers swap chain
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_swapChain;
