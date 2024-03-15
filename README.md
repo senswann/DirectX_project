@@ -14,7 +14,7 @@ Pour que le projet soit fonctionnel veuillez suivre les instructions suivante :
 
 - lors de la géneration de la build un fichier .sln sera générer. il suffira de l'ouvrir avec Visual Studio et de générer un éxécutable.
 
-#commandes
+## Commandes
 
 pour faire une rotation sur le cube central : Z/Q/S/D
 
