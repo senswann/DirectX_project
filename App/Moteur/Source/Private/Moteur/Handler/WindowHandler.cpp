@@ -412,7 +412,7 @@ void AYCDX::WindowHandler::BeginFrame(ID3D12GraphicsCommandList7* InCmdList){
 	InCmdList->ClearRenderTargetView(m_rtvHandles[m_currentBufferIndex], DXwd::SWAP_CHAIN_BUFFER_BACKGROUND_COLOR, 0, nullptr);
 	InCmdList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH, 0.0f, 0, 0, nullptr);
 	
-	InCmdList->OMSetRenderTargets(1, &m_rtvHandles[m_currentBufferIndex], false, nullptr);
+	InCmdList->OMSetRenderTargets(1, &m_rtvHandles[m_currentBufferIndex], false, &depthStencilView);
 }
 
 void AYCDX::WindowHandler::EndFrame(ID3D12GraphicsCommandList7* InCmdList)
