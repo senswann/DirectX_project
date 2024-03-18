@@ -1,5 +1,4 @@
 #include <Windows.h>
-#include <chrono>
 #include <iostream>
 #include <string>
 #include <wrl/client.h>
@@ -14,6 +13,7 @@
 
 #include "Moteur/Handler/WindowHandler.h"
 #include "Moteur/Tools/Shader.h"
+#include "Moteur/Tools/AYCTimer.h"
 
 #include "Moteur/Geometry/AYCMesh3D.h"
 #include "Moteur/Geometry/AYCBasicShapFactory.h"
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     }
 
     AYCMesh3D defaultCubeMesh = AYCBasicShapeFactory::CreateMesh_Cube(CubeColor);
-    AYCMesh3D defaultCubeMesh2 = AYCBasicShapeFactory::CreateMesh_Cube(CubeColor2);
+    AYCMesh3D defaultCubeMesh2 = AYCBasicShapeFactory::CreateMesh_Sphere(CubeColor2);
 
     //---------Upload inital resources---------//
     {
@@ -118,8 +118,8 @@ int main(int argc, char* argv[])
     ModelViewprojectionConstants ModelViewProjectionCBV;
 
     //delta time initialisation
-    auto lastTime = std::chrono::high_resolution_clock::now();
-    double deltaTime = 0.0;
+    AYCDX::AYCTimer::Get().Init();
+    AYCDX::AYCTimer::Get().SleepMilliseconds(16);
 
     //boucle de rendu
     while (!WindowHandler::Get().GetClose()) {
@@ -131,6 +131,8 @@ int main(int argc, char* argv[])
             AYC_Context::Get().Flush(DXWindowDefaults::SWAP_CHAIN_BUFFER_COUNT);
             window->Resize();
         }
+
+        double deltaTime = AYCDX::AYCTimer::Get().BeginNewFrame();
 
         //Declare a Viewport
         // -- RS --
@@ -180,17 +182,6 @@ int main(int argc, char* argv[])
         ID3D12GraphicsCommandList7* drawlist = AYC_Context::Get().InitCommandList();
 
         window->BeginFrame(drawlist);
-        // Calcul du Delta time
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> timeElapsed = currentTime - lastTime;
-        deltaTime = timeElapsed.count();
-
-        lastTime = currentTime;
-
-        // Convertir deltaTime en une chaîne de caractères
-        std::ostringstream ss;
-        ss << std::fixed << std::setprecision(6) << deltaTime;
-        std::string deltaTimeStr = ss.str();
 
         //Fill CommandList
         //Set Draw zone on screeen
@@ -236,7 +227,7 @@ int main(int argc, char* argv[])
             {
                 .Position = cube2pos,
                 .Rotation = cube2rot,
-                .Scale = { 0.5f, 0.5f,  0.5f }
+                .Scale = { .25f, .25f,  .25f }
             }
         };
 

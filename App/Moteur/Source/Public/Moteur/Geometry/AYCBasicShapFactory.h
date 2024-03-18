@@ -14,6 +14,7 @@ namespace AYCDX
 	{
 	public:
 		static AYCMesh3D CreateMesh_Cube(const DirectX::XMFLOAT3& InVertexColor);
+		static AYCMesh3D CreateMesh_Sphere(const DirectX::XMFLOAT3& InVertexColor);
 	private:
 		AYCBasicShapeFactory() = delete;
 	};
