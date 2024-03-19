@@ -18,25 +18,48 @@ bool AYCPipelineHandler3D::Init(ID3D12RootSignature* InRootSignature3D, const Sh
 			.InputSlot = 0, //Source vertex buffer, the first and only one
 			.AlignedByteOffset = 0, //No alignement needed since "Position" is the first data element, otherwise can set manually to sum of last element sizes or D3D12_APPEND_ALIGNED_ELEMENT is automatic value
 			.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, // Vertex is used per vertex or per vertex index
+		
 			.InstanceDataStepRate = 0 // 0 per vertex
 		},
-		// [1] Color : //vertex3D color
+
+		// [1] Position : //vertex3D normal
+		{
+			.SemanticName = "Normal", //Name of the input for the shader
+			.SemanticIndex = 0, // if multiple input share the name '.SemanticName', this index differenciate them. ex : "TEXTCOORD" 0, 1, 2 ...
+			.Format = DXGI_FORMAT_R32G32B32_FLOAT, //float[3]
+			.InputSlot = 0, //Source vertex buffer, the first and only one
+			.AlignedByteOffset = /*Position*/sizeof(float) * 3, //No alignement needed since "Position" is the first data element, otherwise can set manually to sum of last element sizes or D3D12_APPEND_ALIGNED_ELEMENT is automatic value
+			.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, // Vertex is used per vertex or per vertex index
+			.InstanceDataStepRate = 0 // 0 per vertex
+		},
+
+		// [2] Color : //vertex3D color
 		{
 			.SemanticName = "Color", //Name of the input for the shader
 			.SemanticIndex = 0, // if multiple input share the name '.SemanticName', this index differenciate them. ex : "TEXTCOORD" 0, 1, 2 ...
 			.Format = DXGI_FORMAT_R32G32B32_FLOAT, //float[3]
 			.InputSlot = 0, //Source vertex buffer, the first and only one
-			.AlignedByteOffset = /*Position*/sizeof(float) * 3, //offset by the 3 first float position
+			.AlignedByteOffset =  /*Position*/(sizeof(float) * 3) +/*Normal*/(sizeof(float) * 3), //offset by the 3 first float position
 			.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, // Color is used per vertex or per vertex index
 			.InstanceDataStepRate = 0 // 0 per vertex
 		},
-		// [2] Texcoord : //vertex2D position
+		// [3] Texcoord : //vertex2D position
 		{
 			.SemanticName = "Texcoord", //Name of the input for the shader
 			.SemanticIndex = 0, // if multiple input share the name '.SemanticName', this index differenciate them. ex : "TEXTCOORD" 0, 1, 2 ...
 			.Format = DXGI_FORMAT_R32G32_FLOAT, //float[2]
 			.InputSlot = 0, //Source vertex buffer, the first and only one
-			.AlignedByteOffset = /*Position*/(sizeof(float) * 3) + /*Color*/(sizeof(float) * 3), //offset by the 2 first float3 parameters
+			.AlignedByteOffset = /*Position*/(sizeof(float) * 3) + /*Normal*/(sizeof(float) * 3) +/*Color*/(sizeof(float) * 3), //offset by the 2 first float3 parameters
+			.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, // Vertex is used per vertex or per vertex index
+			.InstanceDataStepRate = 0 // 0 per vertex
+		},
+		// [4] Texcoord : //TextIndex position
+		{
+			.SemanticName = "TexIndex", //Name of the input for the shader
+			.SemanticIndex = 0, // if multiple input share the name '.SemanticName', this index differenciate them. ex : "TEXTCOORD" 0, 1, 2 ...
+			.Format = DXGI_FORMAT_R32_UINT, //float[2]
+			.InputSlot = 0, //Source vertex buffer, the first and only one
+			.AlignedByteOffset = /*Position*/(sizeof(float) * 3) + /*Normal*/(sizeof(float) * 3) +/*Color*/(sizeof(float) * 3) +/*TextCoord*/(sizeof(float) * 2), //offset by the 2 first float3 parameters
 			.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, // Vertex is used per vertex or per vertex index
 			.InstanceDataStepRate = 0 // 0 per vertex
 		}

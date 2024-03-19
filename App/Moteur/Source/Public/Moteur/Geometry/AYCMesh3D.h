@@ -10,6 +10,23 @@
 
 namespace AYCDX
 {
+	static DirectX::XMMATRIX InverseTranspose(DirectX::CXMMATRIX M)
+	{
+		DirectX::XMMATRIX A = M;
+		A.r[3] = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(A);
+		return DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, A));
+	}
+	static DirectX::XMFLOAT4X4 InverseTranspose(DirectX::XMFLOAT4X4 M)
+	{
+		DirectX::XMMATRIX TransformMatrix = DirectX::XMLoadFloat4x4(&M);
+		TransformMatrix = AYCDX::InverseTranspose(TransformMatrix);
+
+		DirectX::XMFLOAT4X4  StoredInverseTranspose;
+		DirectX::XMStoreFloat4x4(&StoredInverseTranspose, TransformMatrix);
+		return StoredInverseTranspose;
+	}
+
 	enum class AYCMeshStateType : uint8_t
 	{
 		Unknown = 0,

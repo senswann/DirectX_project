@@ -19,6 +19,8 @@ set(MOTEUR_SOURCES
 	${MOTEUR_PUBLIC}/Tools/Debug/AYC_Context.h						${MOTEUR_PRIVATE}/Tools/Debug/AYC_Context.cpp
 	${MOTEUR_PUBLIC}/Handler/WindowHandler.h						${MOTEUR_PRIVATE}/Handler/WindowHandler.cpp
 	${MOTEUR_PUBLIC}/Handler/Pipeline/AYCPipelineHandler3D.h		${MOTEUR_PRIVATE}/Handler/Pipeline/AYCPipelineHandler3D.cpp
+	${MOTEUR_PUBLIC}/Interfaces/Listeners/IAYCInputListener.h		${MOTEUR_PRIVATE}/Interfaces/Listeners/IAYCInputListener.cpp
+	${MOTEUR_PUBLIC}/Gameplay/AYCPlayerController.h					${MOTEUR_PRIVATE}/Gameplay/AYCPlayerController.cpp
 )
 
 set(MOTEUR_SOURCES_SHADER_PIPELINE

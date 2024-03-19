@@ -4,52 +4,59 @@
 using namespace DirectX;
 using namespace AYCDX;
 
+constexpr DirectX::XMFLOAT3 N_UP = DirectX::XMFLOAT3(0.f, 0.f, 1.f);
+constexpr DirectX::XMFLOAT3 N_DOWN = DirectX::XMFLOAT3(0.f, 0.f, -1.f);
+constexpr DirectX::XMFLOAT3 N_RIGHT = DirectX::XMFLOAT3(0.f, 1.f, 0.f);
+constexpr DirectX::XMFLOAT3 N_LEFT = DirectX::XMFLOAT3(0.f, -1.f, 0.f);
+constexpr DirectX::XMFLOAT3 N_FRWRD = DirectX::XMFLOAT3(1.f, 0.f, 0.f);
+constexpr DirectX::XMFLOAT3 N_BACK = DirectX::XMFLOAT3(-1.f, 0.f, 0.f);
+
 AYCMesh3D AYCBasicShapeFactory::CreateMesh_Cube(const XMFLOAT3& InVertexColor)
 {
     return AYCMesh3D(std::vector<VertexPositionUVColor>
     {
-        // Front face
-        {.pos = XMFLOAT3(0.5f, -0.5f, 0.5f), .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, 0.5f),    .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        // UP face
+        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .normal = N_UP, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .normal = N_UP, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .normal = N_UP, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, 0.5f),    .normal = N_UP, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .normal = N_UP, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .normal = N_UP, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+            // Down face
+        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .normal = N_DOWN, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .normal = N_DOWN, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, -0.5f), .normal = N_DOWN, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .normal = N_DOWN, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .normal = N_DOWN, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .normal = N_DOWN, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+            // Front face
+        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .normal = N_BACK, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .normal = N_BACK, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, -0.5f), .normal = N_BACK, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .normal = N_BACK, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .normal = N_BACK, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .normal = N_BACK, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
             // Back face
-        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, -0.5f), .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-            // Left face
-        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, -0.5f), .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .normal = N_FRWRD, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .normal = N_FRWRD, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .normal = N_FRWRD, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, 0.5f),    .normal = N_FRWRD, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .normal = N_FRWRD, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .normal = N_FRWRD, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
             // Right face
-        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, 0.5f),    .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-            // Top face
-        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, 0.5f),    .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-            // Bottom face
-        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, -0.5f), .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
-        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
-        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) }
+        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .normal = N_RIGHT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .normal = N_RIGHT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, -0.5f),  .normal = N_RIGHT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, 0.5f),    .normal = N_RIGHT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, 0.5f, -0.5f),   .normal = N_RIGHT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, 0.5f, 0.5f),   .normal = N_RIGHT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+            // Left face
+        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .normal = N_LEFT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .normal = N_LEFT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, -0.5f), .normal = N_LEFT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 0.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, 0.5f),   .normal = N_LEFT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 1.f) },
+        { .pos = XMFLOAT3(-0.5f, -0.5f, 0.5f),  .normal = N_LEFT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(0.f, 1.f) },
+        { .pos = XMFLOAT3(0.5f, -0.5f, -0.5f),  .normal = N_LEFT, .color = InVertexColor, .uv0 = DirectX::XMFLOAT2(1.f, 0.f) }
     }
     );
 }

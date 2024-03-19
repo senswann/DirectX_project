@@ -2,6 +2,7 @@
 #include "Moteur/Tools/Debug/AYCLog.h"
 
 
+
 using namespace AYCDX;
 
 template<typename TInterger>
@@ -145,6 +146,18 @@ bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList)
 bool AYCDX::AYCMesh3D::DrawMesh(ID3D12GraphicsCommandList7* InUploadCommandList, const AYCTransform3DMatrix& InPinnedransformMatrix) const
 {
 	InUploadCommandList->SetGraphicsRoot32BitConstants(0, 16, &InPinnedransformMatrix.GetMatrix(), 0);
+	
+	AYCTransform3DMatrix ZeroPosition = InPinnedransformMatrix;
+	ZeroPosition.SetPositon(DirectX::XMFLOAT3(0.f, 0.f, 0.f));
+
+	DirectX::XMMATRIX TransformMatrix = DirectX::XMLoadFloat4x4(&ZeroPosition.GetMatrix());
+	DirectX::XMMATRIX InverseTranspose_m = InverseTranspose(TransformMatrix);
+
+	DirectX::XMFLOAT4X4 StoredInverseTranspose;
+	DirectX::XMStoreFloat4x4(&StoredInverseTranspose, InverseTranspose_m);
+
+	InUploadCommandList->SetGraphicsRoot32BitConstants(0, 16, &StoredInverseTranspose, 32);
+
 	return DrawMesh(InUploadCommandList);
 }
 

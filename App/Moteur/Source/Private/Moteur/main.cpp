@@ -192,12 +192,41 @@ int main(int argc, char* argv[])
         AYCTransform3DMatrix DefaultPosition = AYCTransform3DMatrix(TRS_IDENTITY);
         ModelViewProjectionCBV.modelMatrix = DefaultPosition.GetMatrix();
 
+        AYCTransform3DMatrix NoTranslationMatrix = DefaultPosition;
+        NoTranslationMatrix.SetPositon(DirectX::XMFLOAT3(0.f, 0.f, 0.f));
+        //Inverse tra,spose
+        ModelViewProjectionCBV.InvProjModel = AYCDX::InverseTranspose(NoTranslationMatrix.GetMatrix());
+
         /////////////////////Start working With default 3D Render Pipeline/////////////////////////////
 
         drawlist->SetPipelineState(pso3D.Get());
         drawlist->SetGraphicsRootSignature(rootSignature3D.Get());
 
-        drawlist->SetGraphicsRoot32BitConstants(0, 32, &ModelViewProjectionCBV, 0);
+        //2nd cube
+        static DirectX::XMFLOAT3 cube2pos = { 0.f,0.f,0.f };
+        UpdateCubePosition(cube2pos, (float)deltaTime);
+        static DirectX::XMFLOAT3 cube2rot = { 0.f,0.f,0.f };
+        cube2rot.x += 0.5f;
+        cube2rot.y += 0.5f;
+        cube2rot.z += 0.5f;
+
+        DirectX::XMFLOAT3 AmbiantColor = DirectX::XMFLOAT3(2.f, 2.f, 2.f);
+        DirectX::XMFLOAT4 CameraWorldSpace = DirectX::XMFLOAT4(CameraData.Position.x, CameraData.Position.y, CameraData.Position.z, 1.f);
+
+        ModelViewProjectionCBV.CameraWorldPosition = DirectX::XMFLOAT4(
+            CameraData.Position.x, CameraData.Position.y, CameraData.Position.z,
+            AmbiantColor.x
+        );
+        ModelViewProjectionCBV.LightWorldPosition = DirectX::XMFLOAT4(
+            cube2pos.x, cube2pos.y, cube2pos.z,
+            AmbiantColor.y
+        );
+        ModelViewProjectionCBV.LightColor = DirectX::XMFLOAT4(
+            1.f, 1.f, 1.f,
+            AmbiantColor.z
+        );
+
+        drawlist->SetGraphicsRoot32BitConstants(0, 60, &ModelViewProjectionCBV, 0);
 
         //1st cube
         AYCTransform3DMatrix CubePosition =
@@ -209,17 +238,6 @@ int main(int argc, char* argv[])
                 .Scale = { 1.f, 1.f,  1.f }
             }
         };
-
-        defaultCubeMesh.DrawMesh(drawlist, CubePosition);
-
-        //2nd cube
-        static DirectX::XMFLOAT3 cube2pos = { 0.f,0.f,0.f };
-        UpdateCubePosition(cube2pos, deltaTime);
-        static DirectX::XMFLOAT3 cube2rot = { 0.f,0.f,0.f };
-        cube2rot.x += 0.5f;
-        cube2rot.y += 0.5f;
-        cube2rot.z += 0.5f;
-
 
         AYCTransform3DMatrix CubePosition2 =
         {
@@ -233,7 +251,7 @@ int main(int argc, char* argv[])
 
         defaultCubeMesh2.DrawMesh(drawlist, CubePosition2);
 
-
+        defaultCubeMesh.DrawMesh(drawlist, CubePosition);
         /////////////////////End working With default 3D Render Pipeline/////////////////////////////
 
         window->EndFrame(drawlist);
